@@ -1,0 +1,84 @@
+def home(): #drive both axis home.
+	global currentX 
+	global currentY
+
+	while GPIO.input(23) == 1 or GPIO.input(22) == 1: # drive untol home limit switches triggered
+
+	# set direction to home
+		GPIO.output(14, False)
+		GPIO.output(17, False)
+
+	#drive axis home until switch triggered
+
+		if(GPIO.input(22) == 1):
+			GPIO.output(15, True)
+			sleep(delay)
+			GPIO.output(15, False)
+
+
+		if(GPIO.input(23) == 1):
+			GPIO.output(18, True)
+			sleep(delay)
+			GPIO.output(18, False)
+		sleep(delay)
+	currentX = 0 #setto zero!
+	currentY = 0
+#end of home
+
+def load_stitch_csv(csv_file):
+	f = open("spiral4.csv","r")
+	xlist = []
+	ylist = []
+	while True:
+   	line = f.readline()
+    	if not line:
+      	break
+		line = line.strip("\n").split(",")
+    	x = line[2]
+    	y = line[3]
+    	xlist.append(float(x.strip('"')))
+    	ylist.append(float(y.strip('"')))
+	f.close()
+	return (xlist,ylist)
+
+
+def drive():
+	global currentX
+	global currentY
+	global goalX
+	global goalY
+	global delay
+	# drive towards the goal values (acceleration code to go here!)
+	if  goalX > currentX: #set direction the stepper should travel
+		GPIO.output(14, True)
+	else:
+		GPIO.output(14, False)
+	
+	if goalY > currentY:
+		GPIO.output(17, True)
+	else:
+		GPIO.output(17, False)
+			
+	while currentX != goalX or currentY != goalY: 
+		#drive the stepper and update the current location
+
+		if currentX < goalX:
+			GPIO.output(15, True)
+			currentX +=1
+		if currentX > goalX:
+			GPIO.output(15, True)
+			currentX -=1
+
+		if currentY < goalY:
+			GPIO.output(18, True)
+			currentY +=1
+		if currentY > goalY:
+			GPIO.output(18, True)
+			currentY -=1
+		sleep(delay)
+#		print( str(currentX) + " , "  +str( currentY))
+
+		GPIO.output(15, False)
+		GPIO.output(18, False)
+		sleep(delay)
+#end of drive
